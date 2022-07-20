@@ -4,10 +4,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { MainModule } from './main/main.module';
 import { ModalComponent } from './modal/modal.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [AppComponent, ModalComponent],
-  imports: [BrowserModule, MainModule],
+  imports: [BrowserModule, MainModule, ReactiveFormsModule],
   providers: [],
   bootstrap: [AppComponent],
 })
