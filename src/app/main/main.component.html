@@ -1,10 +1,9 @@
 <div class="board">
   <div *ngFor="let board of boards; let boardIndex = index" class="board-col">
     <span class="board-title">{{ board.title }}</span>
-    <div *ngIf="!!board.tasks.length" class="board-task__wrapper">
+    <div class="board-task__wrapper">
+      <div *ngIf="!board.tasks.length" class="pseudo-task" draggable="false"></div>
       <div
-        (dragend)="dragEnd($event)" (dragenter)="dragEnter($event)" (dragleave)="dragLeave($event)"
-        (dragstart)="dragStart($event)"
         *ngFor="let task of board.tasks; let taskIndex = index"
         class="board-task" draggable="true"
       >

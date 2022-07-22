@@ -10,3 +10,8 @@ export interface Modal {
   taskNum?: number;
   editText?: string;
 }
+
+export interface IndexesData {
+  start: { col: number; task: number };
+  end: { col: number; task: number };
+}
