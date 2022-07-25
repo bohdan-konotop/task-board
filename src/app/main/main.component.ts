@@ -17,18 +17,23 @@ export class MainComponent implements OnInit, AfterViewInit {
   private dragStartEvents$: Array<Observable<DragEvent>> = [];
   private dragEndEvents$: Array<Observable<DragEvent>> = [];
   private dragEnterEvents$: Array<Observable<DragEvent>> = [];
+
   private subscription = new Subscription();
   private dragStartDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
   private dragEndDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
+
   private offset: number = 0;
   private blockHeight: number = 0;
 
+  private pseudoDiv = document.createElement('div');
+
   constructor(
     private boardService: BoardService,
-    private modal: ModalWindowService
+    private modal: ModalWindowService //@Inhect(DOCUMENT)
   ) {}
 
   ngOnInit(): void {
+    // this.pseudoDiv.classList.add('pseudo-div');
     this.boardService.boards$.subscribe((boards) => {
       this.boards = boards;
       this.subscription.unsubscribe();
@@ -99,6 +104,16 @@ export class MainComponent implements OnInit, AfterViewInit {
           this.blockHeight = (
             dragEnter.currentTarget as HTMLDivElement
           ).offsetHeight;
+
+          this.pseudoDiv.style.height = '40px';
+          this.pseudoDiv.style.background = '#fff';
+          this.pseudoDiv.style.opacity = '.4';
+          this.pseudoDiv.style.marginTop = '7px';
+          this.pseudoDiv.style.marginBottom = '7px';
+
+          if (this.getPosition() === 'UP')
+            this.dragEndDiv.before(this.pseudoDiv);
+          else this.dragEndDiv.after(this.pseudoDiv);
         })
       )
     );
@@ -109,6 +124,7 @@ export class MainComponent implements OnInit, AfterViewInit {
       this.subscription.add(
         event$.subscribe((dragEnd) => {
           (dragEnd.currentTarget as HTMLDivElement).removeAttribute('style');
+          this.pseudoDiv.remove();
 
           if (this.dragStartDiv === this.dragEndDiv) return;
 
