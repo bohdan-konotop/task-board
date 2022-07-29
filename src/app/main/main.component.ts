@@ -5,9 +5,9 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { BoardService } from '../services/board.service';
-import { Board, ExpectedTask, IndexesData } from '../interfaces';
-import { ModalWindowService } from '../services/modal-window.service';
+import { BoardService, Direction } from '../services/board.service'; // TODO: Rework to alias import (Add to tsconfig.ts)
+import { Board, ExpectedTask, IndexesData } from '../interfaces'; // TODO: Rework to alias import (Add to tsconfig.ts)
+import { ModalWindowService } from '../services/modal-window.service'; // TODO: Rework to alias import (Add to tsconfig.ts)
 import { fromEvent, Observable, Subscription } from 'rxjs';
 
 @Component({
@@ -27,6 +27,7 @@ export class MainComponent implements OnInit, AfterViewInit {
   private dragOverEvents$: Array<Observable<DragEvent>> = [];
   private dragEndEvents$: Array<Observable<DragEvent>> = [];
 
+  // TODO: read about takeUntil operator rxjs
   private subscription = new Subscription();
 
   private dragStartDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
@@ -99,12 +100,6 @@ export class MainComponent implements OnInit, AfterViewInit {
         ];
       }
     );
-
-    // this.boards.forEach((board, i) => {
-    //   board.tasks.forEach((_, j) => {
-    //     this.expectedTasks[i][j] = { up: false, down: false };
-    //   });
-    // });
   }
 
   private pushDragEvents(): void {
@@ -158,17 +153,16 @@ export class MainComponent implements OnInit, AfterViewInit {
           const expectedTask =
             this.expectedTasks?.[indexOfCol]?.[indexOfTask] || null;
 
-          if (indexOfCol < 0 || indexOfTask < 0 || expectedTask === null)
-            return;
-          else if (position === 'UP') expectedTask.up = true;
-          else if (position === 'DOWN') expectedTask.down = true;
+          if (indexOfCol < 0 || indexOfTask < 0 || expectedTask === null) return;
+          else if (position === Direction.UP) expectedTask.up = true;
+          else if (position === Direction.DOWN) expectedTask.down = true;
         })
       )
     );
   }
 
   private dragEnd(): void {
-    this.dragEndEvents$.forEach((event$) =>
+    this.dragEndEvents$.forEach((event$) => {
       this.subscription.add(
         event$.subscribe((dragEnd) => {
           this.pushExpectedTasks();
@@ -179,6 +173,7 @@ export class MainComponent implements OnInit, AfterViewInit {
 
           if (this.dragStartDiv === this.dragEndDiv) return;
 
+          // TODO: rework to getter
           const indexOfStartCol = this.findIndexOfStartCol();
           const indexOfStartTask = this.findIndexOfStartTask();
           const indexOfEndCol = this.findIndexOfEndCol();
@@ -194,7 +189,7 @@ export class MainComponent implements OnInit, AfterViewInit {
           this.boardService.rearrangeTasks(indexes, position);
         })
       )
-    );
+    });
   }
 
   private findIndexOfStartCol(): number {
@@ -238,7 +233,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     const endTaskChild = this.dragEndDiv;
 
     const expectedTaskIndex = Array.from(endBoard?.children || []).findIndex(
-      (child) => child.classList.value === 'expected-task'
+      (child) => child.classList.contains('expected-task')
     );
 
     const childrenArray = Array.from(endBoard?.children || []);
@@ -270,8 +265,9 @@ export class MainComponent implements OnInit, AfterViewInit {
     return boardChildren.findIndex((board) => board === child);
   }
 
+  // TODO: rework to getter
   private getPosition() {
-    if (this.blockHeight / 2 < this.offset) return 'DOWN';
-    return 'UP';
+    if (this.blockHeight / 2 < this.offset) return Direction.DOWN;
+    return Direction.UP;
   }
 }

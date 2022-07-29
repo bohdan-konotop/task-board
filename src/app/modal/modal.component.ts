@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Modal } from '../interfaces';
 import { ModalWindowService } from '../services/modal-window.service';
 import { FormControl, Validators } from '@angular/forms';
 import { BoardService } from '../services/board.service';
@@ -10,7 +9,7 @@ import { BoardService } from '../services/board.service';
   styleUrls: ['./modal.component.scss'],
 })
 export class ModalComponent implements OnInit {
-  modal: Modal = this.modalService.modalInitial;
+  modal = this.modalService.modalInitial;
   input = new FormControl('', [Validators.required, Validators.minLength(1)]);
 
   constructor(
@@ -19,12 +18,14 @@ export class ModalComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // TODO: add destroy$ Subject
     this.modalService.modal$.subscribe((modal) => {
       this.modal = modal;
       this.input.setValue(modal.editText || '');
     });
   }
 
+    // TODO: add enums for strings
   modalAction(action: 'Add' | 'Edit' | null, taskIndex: number = 0): void {
     if (this.input.invalid || this.modal.boardNum === null) return;
 

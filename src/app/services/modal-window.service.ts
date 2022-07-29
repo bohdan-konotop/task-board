@@ -6,7 +6,7 @@ import { Modal } from '../interfaces';
   providedIn: 'root',
 })
 export class ModalWindowService {
-  modalInitial = { show: false, activity: null, boardNum: null };
+  modalInitial: Modal = { show: false, activity: null, boardNum: null };
 
   private modal = new BehaviorSubject<Modal>(this.modalInitial);
   modal$ = this.modal.asObservable();

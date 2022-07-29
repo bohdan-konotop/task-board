@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { ModalWindowService } from '../../services/modal-window.service';
-import { BoardService } from '../../services/board.service';
+import { ModalWindowService } from '../../services/modal-window.service'; // TODO: Rework to alias import (Add to tsconfig.ts)
+import { BoardService } from '../../services/board.service'; // TODO: Rework to alias import (Add to tsconfig.ts)
 
 @Component({
   selector: 'app-task',

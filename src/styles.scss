@@ -5,3 +5,10 @@ body {
   margin: 0 auto;
   position: relative;
 }
+
+
+:root {
+  --red-background: rgb(255, 46, 46);
+  --red-background-50: rgba(255, 46, 46, 0.5);
+  --red-background-80: rgba(255, 46 46, 0.8);
+}

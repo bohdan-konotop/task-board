@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: column;
   padding: 15px;
-  background: #fff;
-  border-radius: 5px;
+  background: #fff; // TODO: to css variable
+  border-radius: 5px; // TODO: to css variable
 
   &__title {
-    font-size: 15px;
+    font-size: 15px; // TODO: to css variable
   }
 
   &__btns {
@@ -25,18 +25,18 @@
       opacity: 1;
     }
 
-    > svg {
+    svg {
       width: 20px;
       height: 20px;
     }
   }
 
   &__edit-btn {
-    color: #ffbf33;
+    color: #ffbf33; // TODO: to css variable
   }
 
   &__delete-btn {
-    color: #ff2e2e;
+    color: #ff2e2e; // TODO: to css variable
     margin-left: 10px;
   }
 }

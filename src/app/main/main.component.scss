@@ -13,7 +13,7 @@
     width: 33%;
     margin: 0 15px;
     padding: 15px;
-    border-radius: 5px;
+    border-radius: 5px; // TODO: to css variable
 
     &:first-child,
     &:last-child {
@@ -27,28 +27,28 @@
   }
 
   &-task {
-
+    // TODO: empty string should be only if parrent block has properties
     &__app {
-      border-top: 7px solid #eaeaea;
-      border-bottom: 7px solid #eaeaea;
+      border-top: 7px solid #eaeaea; // TODO: to css variable
+      border-bottom: 7px solid #eaeaea; // TODO: to css variable
     }
 
     &__add {
       margin-top: 15px;
       border: 0;
-      background: rgba(98, 255, 93, 0.7);
+      background: rgba(98, 255, 93, 0.7); // TODO: to css variable
       border-radius: 3px;
       padding: 10px;
       font-weight: 700;
-      color: #065400;
+      color: #065400; // TODO: to css variable
 
       &:hover {
-        background: #5cff57;
+        background: #5cff57; // TODO: to css variable
       }
 
       &:active {
-        background: #14ff00;
-        color: #fff;
+        background: #14ff00; // TODO: to css variable
+        color: #fff; // TODO: to css variable
       }
     }
   }
@@ -67,8 +67,8 @@
 
 .expected-task {
   height: 40px;
-  border-top: 7px solid #eaeaea;
-  border-bottom: 7px solid #eaeaea;
+  border-top: 7px solid #eaeaea; // TODO: to css variable
+  border-bottom: 7px solid #eaeaea; // TODO: to css variable
   background: #fff;
   opacity: 0.4;
 }
