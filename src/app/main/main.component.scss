@@ -1,4 +1,3 @@
-
 .board {
   display: flex;
   justify-content: space-between;
@@ -24,50 +23,14 @@
 
   &-title {
     font-weight: 700;
+    margin-bottom: 7px;
   }
 
   &-task {
-    display: flex;
-    flex-direction: column;
-    margin-top: 15px;
-    padding: 15px;
-    background: #fff;
-    border-radius: 5px;
 
-
-    &__title {
-      font-size: 15px;
-    }
-
-    &__btns {
-      align-self: end;
-    }
-
-    &__edit-btn,
-    &__delete-btn {
-      background: transparent;
-      border: 0;
-      padding: 0;
-      cursor: pointer;
-      opacity: 0.6;
-
-      &:hover {
-        opacity: 1;
-      }
-
-      > svg {
-        width: 20px;
-        height: 20px;
-      }
-    }
-
-    &__edit-btn {
-      color: #ffbf33;
-    }
-
-    &__delete-btn {
-      color: #ff2e2e;
-      margin-left: 10px;
+    &__app {
+      border-top: 7px solid #eaeaea;
+      border-bottom: 7px solid #eaeaea;
     }
 
     &__add {
@@ -89,6 +52,11 @@
       }
     }
   }
+
+  &-task__wrapper {
+    display: flex;
+    flex-direction: column;
+  }
 }
 
 .pseudo-task {
@@ -97,12 +65,10 @@
   width: 100%;
 }
 
-.pseudo-div {
+.expected-task {
   height: 40px;
+  border-top: 7px solid #eaeaea;
+  border-bottom: 7px solid #eaeaea;
   background: #fff;
-  opacity: .4;
-  margin-top: 7px;
-  margin-bottom: 7px;
+  opacity: 0.4;
 }
-
-

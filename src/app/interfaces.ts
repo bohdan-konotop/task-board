@@ -15,3 +15,8 @@ export interface IndexesData {
   start: { col: number; task: number };
   end: { col: number; task: number };
 }
+
+export interface ExpectedTask {
+  up: boolean;
+  down: boolean;
+}

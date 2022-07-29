@@ -1,29 +1,30 @@
-<div class="board">
+<div #boardDiv (dragover)="$event.preventDefault()" class="board">
   <div *ngFor="let board of boards; let boardIndex = index" class="board-col">
     <span class="board-title">{{ board.title }}</span>
     <div class="board-task__wrapper">
-      <div *ngIf="!board.tasks.length" class="pseudo-task" draggable="false"></div>
       <div
-        *ngFor="let task of board.tasks; let taskIndex = index"
-        class="board-task" draggable="true"
-      >
-        <span class="board-task__title"
-        >{{task}}</span
+        *ngIf="!board.tasks.length"
+        class="pseudo-task"
+        draggable="false"
+      ></div>
+      <ng-container *ngFor="let task of board.tasks; let taskIndex = index">
+        <div (dragover)="$event.preventDefault()" *ngIf="expectedTasks[boardIndex][taskIndex].up" class="expected-task"
+             draggable="false"></div>
+        <app-task
+          (drop)="$event.preventDefault()"
+          [boardIndex]="boardIndex"
+          [taskIndex]="taskIndex"
+          [task]="task"
+          class="board-task__app"
+          draggable="true"
         >
-        <div class="board-task__btns">
-          <button (click)="editTask(boardIndex, taskIndex, task)" class="board-task__edit-btn">
-            <svg>
-              <use xlink:href="./assets/icons/edit.svg#edit"></use>
-            </svg>
-          </button>
-          <button class="board-task__delete-btn">
-            <svg>
-              <use xlink:href="./assets/icons/delete.svg#delete"></use>
-            </svg>
-          </button>
-        </div>
-      </div>
+        </app-task>
+        <div (dragover)="$event.preventDefault()" *ngIf="expectedTasks[boardIndex][taskIndex].down"
+             class="expected-task" draggable="false"></div>
+      </ng-container>
     </div>
-    <button (click)="addTask(boardIndex)" class="board-task__add">Add task</button>
+    <button (click)="addTask(boardIndex)" class="board-task__add">
+      Add task
+    </button>
   </div>
 </div>
