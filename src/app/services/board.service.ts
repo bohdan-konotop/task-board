@@ -1,13 +1,19 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Board, IndexesData } from '../interfaces';
-import { getBoardsFromStorage } from '../storage-functions';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BoardService {
-  boardsInitial: Board[] = getBoardsFromStorage();
+  private firstRun = [
+    { title: 'Todo', tasks: [] },
+    { title: 'In Progress', tasks: [] },
+    { title: 'Done', tasks: [] },
+  ];
+  boardsInitial: Board[] = JSON.parse(
+    localStorage.getItem('boards') || JSON.stringify(this.firstRun)
+  );
   private boards = new BehaviorSubject(this.boardsInitial);
   boards$ = this.boards.asObservable();
 
