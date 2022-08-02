@@ -5,10 +5,11 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { BoardService, Direction } from '../services/board.service'; // TODO: Rework to alias import (Add to tsconfig.ts)
-import { Board, ExpectedTask, IndexesData } from '../interfaces'; // TODO: Rework to alias import (Add to tsconfig.ts)
-import { ModalWindowService } from '../services/modal-window.service'; // TODO: Rework to alias import (Add to tsconfig.ts)
-import { fromEvent, Observable, Subscription } from 'rxjs';
+import { BoardService } from '@services/board.service';
+import { Board, ExpectedTask, IndexesData } from '@interfaces';
+import { ModalWindowService } from '@services/modal-window.service';
+import { fromEvent, Observable, Subject, takeUntil } from 'rxjs';
+import { Direction } from '@enums';
 
 @Component({
   selector: 'app-main',
@@ -18,8 +19,8 @@ import { fromEvent, Observable, Subscription } from 'rxjs';
 export class MainComponent implements OnInit, AfterViewInit {
   @ViewChild('boardDiv') boardDiv: ElementRef | undefined;
 
-  boards: Board[] = this.boardService.boardsInitial;
-  expectedTasks: ExpectedTask[][] = [];
+  public boards: Board[] = this.boardService.boardsInitial;
+  public expectedTasks: ExpectedTask[][] = [];
 
   private childrenList: HTMLDivElement[] = [];
 
@@ -28,7 +29,8 @@ export class MainComponent implements OnInit, AfterViewInit {
   private dragEndEvents$: Array<Observable<DragEvent>> = [];
 
   // TODO: read about takeUntil operator rxjs
-  private subscription = new Subscription();
+  //private subscription = new Subscription();
+  private notifier$ = new Subject();
 
   private dragStartDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
   private dragEndDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
@@ -41,6 +43,68 @@ export class MainComponent implements OnInit, AfterViewInit {
     private modal: ModalWindowService
   ) {}
 
+  private get indexOfStartCol(): number {
+    const startBoardColChild =
+      (this.dragStartDiv.parentNode?.parentNode as HTMLDivElement) || null;
+    const startBoards = startBoardColChild?.parentNode || null;
+    return this.findIndexOfChild(startBoards, startBoardColChild);
+  }
+
+  private get indexOfStartTask(): number {
+    const startBoard = this.dragStartDiv.parentNode;
+    const startTaskChild = this.dragStartDiv;
+
+    const expectedTaskIndex = Array.from(startBoard?.children || []).findIndex(
+      (child) => child.classList.value === 'expected-task'
+    );
+
+    const childrenArray = Array.from(startBoard?.children || []);
+
+    if (expectedTaskIndex < 0)
+      return this.findIndexOfChild(startBoard, startTaskChild);
+
+    const childrenWithoutExpected = [
+      ...childrenArray.slice(0, expectedTaskIndex),
+      ...childrenArray.slice(expectedTaskIndex + 1, childrenArray.length),
+    ];
+
+    return this.findIndexOfChild(childrenWithoutExpected, startTaskChild);
+  }
+
+  private get indexOfEndCol(): number {
+    const endBoards =
+      this.dragEndDiv.parentNode?.parentNode?.parentNode || null;
+    const endBoardChild =
+      (this.dragEndDiv.parentNode?.parentNode as HTMLDivElement) || null;
+    return this.findIndexOfChild(endBoards, endBoardChild);
+  }
+
+  private get indexOfEndTask(): number {
+    const endBoard = this.dragEndDiv.parentNode;
+    const endTaskChild = this.dragEndDiv;
+
+    const expectedTaskIndex = Array.from(endBoard?.children || []).findIndex(
+      (child) => child.classList.contains('expected-task')
+    );
+
+    const childrenArray = Array.from(endBoard?.children || []);
+
+    if (expectedTaskIndex < 0)
+      return this.findIndexOfChild(endBoard, endTaskChild);
+
+    const childrenWithoutExpected = [
+      ...childrenArray.slice(0, expectedTaskIndex),
+      ...childrenArray.slice(expectedTaskIndex + 1, childrenArray.length),
+    ];
+
+    return this.findIndexOfChild(childrenWithoutExpected, endTaskChild);
+  }
+
+  private get position() {
+    if (this.blockHeight / 2 < this.offset) return Direction.DOWN;
+    return Direction.UP;
+  }
+
   ngOnInit(): void {
     this.boardSubscriber();
   }
@@ -51,7 +115,7 @@ export class MainComponent implements OnInit, AfterViewInit {
     this.drag();
   }
 
-  addTask(boardIndex: number): void {
+  public addTask(boardIndex: number): void {
     this.modal.addTaskModal(boardIndex);
   }
 
@@ -59,7 +123,8 @@ export class MainComponent implements OnInit, AfterViewInit {
     this.boardService.boards$.subscribe((boards) => {
       this.boards = boards;
       this.pushExpectedTasks();
-      this.subscription.unsubscribe();
+      //this.notifier$.complete();
+      //this.subscription.unsubscribe();
       this.drag();
     });
   }
@@ -76,7 +141,8 @@ export class MainComponent implements OnInit, AfterViewInit {
   private drag(): void {
     if (!Array.from(this.childrenList).length) return;
 
-    this.subscription = new Subscription();
+    //this.subscription = new Subscription();
+    this.notifier$.complete();
 
     setTimeout(() => {
       this.pushDragEvents();
@@ -111,145 +177,89 @@ export class MainComponent implements OnInit, AfterViewInit {
       const boardChildren = (childDiv as HTMLDivElement).children;
 
       Array.from(boardChildren).forEach((task) => {
-        this.dragStartEvents$.push(fromEvent<DragEvent>(task, 'dragstart'));
-        this.dragOverEvents$.push(fromEvent<DragEvent>(task, 'dragover'));
-        this.dragEndEvents$.push(fromEvent<DragEvent>(task, 'dragend'));
+        this.dragStartEvents$.push(
+          fromEvent<DragEvent>(task, 'dragstart').pipe(
+            takeUntil(this.notifier$)
+          )
+        );
+        this.dragOverEvents$.push(
+          fromEvent<DragEvent>(task, 'dragover').pipe(takeUntil(this.notifier$))
+        );
+        this.dragEndEvents$.push(
+          fromEvent<DragEvent>(task, 'dragend').pipe(takeUntil(this.notifier$))
+        );
       });
     });
   }
 
   private dragStart(): void {
     this.dragStartEvents$.forEach((event$) => {
-      this.subscription.add(
-        event$.subscribe((dragStart) => {
-          this.dragStartDiv = dragStart.currentTarget as HTMLDivElement;
-          (dragStart.currentTarget as HTMLDivElement).style.opacity = '0.4';
-          (dragStart.currentTarget as HTMLDivElement).style.border = '0';
-          (dragStart.currentTarget as HTMLDivElement).style.padding = '7px 0';
-        })
-      );
+      //this.subscription.add(
+      event$.subscribe((dragStart) => {
+        this.dragStartDiv = dragStart.currentTarget as HTMLDivElement;
+        (dragStart.currentTarget as HTMLDivElement).style.opacity = '0.4';
+        (dragStart.currentTarget as HTMLDivElement).style.border = '0';
+        (dragStart.currentTarget as HTMLDivElement).style.padding = '7px 0';
+      });
+      //);
     });
   }
 
   private dragOver(): void {
     this.dragOverEvents$.forEach((event$) =>
-      this.subscription.add(
-        event$.subscribe((dragOver) => {
-          dragOver.preventDefault();
+      //this.subscription.add(
+      event$.subscribe((dragOver) => {
+        dragOver.preventDefault();
 
-          this.pushExpectedTasks();
+        this.pushExpectedTasks();
 
-          this.dragEndDiv = dragOver.currentTarget as HTMLDivElement;
-          this.offset = dragOver.offsetY;
-          this.blockHeight = (
-            dragOver.currentTarget as HTMLDivElement
-          ).offsetHeight;
+        this.dragEndDiv = dragOver.currentTarget as HTMLDivElement;
+        this.offset = dragOver.offsetY;
+        this.blockHeight = (
+          dragOver.currentTarget as HTMLDivElement
+        ).offsetHeight;
 
-          const indexOfCol = this.findIndexOfEndCol();
-          const indexOfTask = this.findIndexOfEndTask();
+        const expectedTask =
+          this.expectedTasks?.[this.indexOfEndCol]?.[this.indexOfEndTask] ||
+          null;
 
-          const position = this.getPosition();
-
-          const expectedTask =
-            this.expectedTasks?.[indexOfCol]?.[indexOfTask] || null;
-
-          if (indexOfCol < 0 || indexOfTask < 0 || expectedTask === null) return;
-          else if (position === Direction.UP) expectedTask.up = true;
-          else if (position === Direction.DOWN) expectedTask.down = true;
-        })
-      )
+        if (
+          this.indexOfEndCol < 0 ||
+          this.indexOfEndTask < 0 ||
+          expectedTask === null
+        )
+          return;
+        else if (this.position === Direction.UP) expectedTask.up = true;
+        else if (this.position === Direction.DOWN) expectedTask.down = true;
+      })
     );
+    //);
   }
 
   private dragEnd(): void {
     this.dragEndEvents$.forEach((event$) => {
-      this.subscription.add(
-        event$.subscribe((dragEnd) => {
-          this.pushExpectedTasks();
+      //this.subscription.add(
+      event$.subscribe((dragEnd) => {
+        this.pushExpectedTasks();
 
-          (dragEnd.currentTarget as HTMLDivElement).removeAttribute('style');
+        (dragEnd.currentTarget as HTMLDivElement).removeAttribute('style');
 
-          dragEnd.preventDefault();
+        dragEnd.preventDefault();
 
-          if (this.dragStartDiv === this.dragEndDiv) return;
+        if (this.dragStartDiv === this.dragEndDiv) return;
 
-          // TODO: rework to getter
-          const indexOfStartCol = this.findIndexOfStartCol();
-          const indexOfStartTask = this.findIndexOfStartTask();
-          const indexOfEndCol = this.findIndexOfEndCol();
-          const indexOfEndTask = this.findIndexOfEndTask();
+        const indexes: IndexesData = {
+          start: { col: this.indexOfStartCol, task: this.indexOfStartTask },
+          end: { col: this.indexOfEndCol, task: this.indexOfEndTask },
+        };
 
-          const position = this.getPosition();
-
-          const indexes: IndexesData = {
-            start: { col: indexOfStartCol, task: indexOfStartTask },
-            end: { col: indexOfEndCol, task: indexOfEndTask },
-          };
-
-          this.boardService.rearrangeTasks(indexes, position);
-        })
-      )
+        this.boardService.rearrangeTasks(indexes, this.position);
+      });
+      //);
     });
   }
 
-  private findIndexOfStartCol(): number {
-    const startBoardColChild =
-      (this.dragStartDiv.parentNode?.parentNode as HTMLDivElement) || null;
-    const startBoards = startBoardColChild?.parentNode || null;
-    return this.getIndexOfChild(startBoards, startBoardColChild);
-  }
-
-  private findIndexOfStartTask(): number {
-    const startBoard = this.dragStartDiv.parentNode;
-    const startTaskChild = this.dragStartDiv;
-
-    const expectedTaskIndex = Array.from(startBoard?.children || []).findIndex(
-      (child) => child.classList.value === 'expected-task'
-    );
-
-    const childrenArray = Array.from(startBoard?.children || []);
-
-    if (expectedTaskIndex < 0)
-      return this.getIndexOfChild(startBoard, startTaskChild);
-
-    const childrenWithoutExpected = [
-      ...childrenArray.slice(0, expectedTaskIndex),
-      ...childrenArray.slice(expectedTaskIndex + 1, childrenArray.length),
-    ];
-
-    return this.getIndexOfChild(childrenWithoutExpected, startTaskChild);
-  }
-
-  private findIndexOfEndCol(): number {
-    const endBoards =
-      this.dragEndDiv.parentNode?.parentNode?.parentNode || null;
-    const endBoardChild =
-      (this.dragEndDiv.parentNode?.parentNode as HTMLDivElement) || null;
-    return this.getIndexOfChild(endBoards, endBoardChild);
-  }
-
-  private findIndexOfEndTask(): number {
-    const endBoard = this.dragEndDiv.parentNode;
-    const endTaskChild = this.dragEndDiv;
-
-    const expectedTaskIndex = Array.from(endBoard?.children || []).findIndex(
-      (child) => child.classList.contains('expected-task')
-    );
-
-    const childrenArray = Array.from(endBoard?.children || []);
-
-    if (expectedTaskIndex < 0)
-      return this.getIndexOfChild(endBoard, endTaskChild);
-
-    const childrenWithoutExpected = [
-      ...childrenArray.slice(0, expectedTaskIndex),
-      ...childrenArray.slice(expectedTaskIndex + 1, childrenArray.length),
-    ];
-
-    return this.getIndexOfChild(childrenWithoutExpected, endTaskChild);
-  }
-
-  private getIndexOfChild(
+  private findIndexOfChild(
     parent: ParentNode | Element[] | null,
     child: HTMLDivElement | null
   ): number {
@@ -263,11 +273,5 @@ export class MainComponent implements OnInit, AfterViewInit {
     const boardChildren = !!board ? Array.from(board.children) : [];
 
     return boardChildren.findIndex((board) => board === child);
-  }
-
-  // TODO: rework to getter
-  private getPosition() {
-    if (this.blockHeight / 2 < this.offset) return Direction.DOWN;
-    return Direction.UP;
   }
 }

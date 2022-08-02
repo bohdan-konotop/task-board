@@ -8,7 +8,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5);// TODO: to css variable
+  background: var(--background-black-50);
 }
 
 .modal {
@@ -16,11 +16,10 @@
   display: flex;
   flex-direction: column;
   width: 500px;
-  background: #efefef;// TODO: to css variable
+  background: var(--background-gray);
   box-sizing: border-box;
   padding: 30px;
-  border-radius: 5px;  // TODO: to css variable
-
+  border-radius: var(--main-radius);
 
   &__close {
     position: absolute;
@@ -40,7 +39,7 @@
   }
 
   &__header {
-    border-bottom: 1px solid #dedede;// TODO: to css variable
+    border-bottom: var(--gray-border-separator);
   }
 
   &__title {
@@ -57,8 +56,8 @@
       font-size: 18px;
       padding-left: 10px;
       box-sizing: border-box;
-      border: 2px solid gray;// TODO: to css variable
-      border-radius: 3px;// TODO: to css variable
+      border: var(--gray-border-input);
+      border-radius: var(--main-radius);
       outline: none;
     }
   }
@@ -69,38 +68,38 @@
 
     &__close, &__action {
       padding: 10px 15px;
-      border-radius: 3px;
+      border-radius: var(--main-radius);
       font-weight: 700;
-      font-size: 14px;
+      font-size: var(--fz-medium);
       border: 0;
     }
 
     &__close {
-      background: rgba(255, 46, 46, 0.5);// TODO: to css variable
-      color: #540000;// TODO: to css variable
+      background: var(--red-btn-background-50);
+      color: var(--red-btn-color);
 
       &:hover {
-        background: rgba(255, 46, 46, 0.8);// TODO: to css variable
+        background: var(--red-btn-background-80);
       }
 
       &:active {
-        background: rgb(255, 46, 46);// TODO: to css variable
-        color: #fff;
+        background: var(--red-btn-background);
+        color: var(--white);
       }
     }
 
     &__action {
-      background: rgba(98, 255, 93, 0.7);// TODO: to css variable
-      color: #065400;// TODO: to css variable
+      background: var(--green-btn-background);
+      color: var(--green-btn-color);
       margin-left: 15px;
 
       &:hover {
-        background: #5cff57;// TODO: to css variable
+        background: var(--green-btn-background-80);
       }
 
       &:active {
-        background: #14ff00;// TODO: to css variable
-        color: #fff;// TODO: to css variable
+        background: var(--green-btn-background);
+        color: var(--white-color);
       }
     }
   }

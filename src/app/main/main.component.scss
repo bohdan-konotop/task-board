@@ -8,16 +8,19 @@
   &-col {
     display: flex;
     flex-direction: column;
-    background: #eaeaea;
+    background: var(--background-gray-light);
     box-sizing: border-box;
     width: 33%;
-    margin: 0 15px;
+    margin: 0 7px;
     padding: 15px;
-    border-radius: 5px; // TODO: to css variable
+    border-radius: var(--main-radius);
 
-    &:first-child,
+    &:first-child {
+      margin-left: 0;
+    }
+
     &:last-child {
-      margin: 0;
+      margin-right: 0;
     }
   }
 
@@ -27,28 +30,27 @@
   }
 
   &-task {
-    // TODO: empty string should be only if parrent block has properties
     &__app {
-      border-top: 7px solid #eaeaea; // TODO: to css variable
-      border-bottom: 7px solid #eaeaea; // TODO: to css variable
+      border-top: var(--border-instead-margin);
+      border-bottom: var(--border-instead-margin);
     }
 
     &__add {
       margin-top: 15px;
       border: 0;
-      background: rgba(98, 255, 93, 0.7); // TODO: to css variable
-      border-radius: 3px;
+      background: var(--green-btn-background-50);
+      border-radius: var(--main-radius);
       padding: 10px;
       font-weight: 700;
-      color: #065400; // TODO: to css variable
+      color: var(--green-btn-color);
 
       &:hover {
-        background: #5cff57; // TODO: to css variable
+        background: var(--green-btn-background-80);
       }
 
       &:active {
-        background: #14ff00; // TODO: to css variable
-        color: #fff; // TODO: to css variable
+        background: var(--green-btn-background);
+        color: var(--white-color);
       }
     }
   }
@@ -67,8 +69,8 @@
 
 .expected-task {
   height: 40px;
-  border-top: 7px solid #eaeaea; // TODO: to css variable
-  border-bottom: 7px solid #eaeaea; // TODO: to css variable
+  border-top: var(--border-instead-margin);
+  border-bottom: var(--border-instead-margin);
   background: #fff;
   opacity: 0.4;
 }

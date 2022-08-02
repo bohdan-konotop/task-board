@@ -2,14 +2,14 @@
   <div class="modal">
     <div class="modal__header">
       <button (click)="closeModal()" class="modal__close">x</button>
-      <h2 class="modal__title">{{modal.activity}} Task</h2>
+      <h2 class="modal__title">{{modal.action}} Task</h2>
     </div>
     <div class="modal__body">
       <input [formControl]="input" class="modal__body__input" type="text">
     </div>
     <div class="modal__footer">
       <button (click)="closeModal()" class="modal__footer__close">Close</button>
-      <button (click)="modalAction(modal.activity, modal.taskNum)" class="modal__footer__action">{{modal.activity}} task
+      <button (click)="modalAction(modal.action, modal.taskNum)" class="modal__footer__action">{{modal.action}} task
       </button>
     </div>
   </div>

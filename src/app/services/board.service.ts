@@ -1,12 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Board, IndexesData } from '../interfaces';
-
-// TODO: Move to consts
-export enum Direction {
-  UP = 'up',
-  DOWN = 'down'
-}
+import { Board, IndexesData } from '@interfaces';
+import { Direction } from '@enums';
 
 @Injectable({
   providedIn: 'root',
@@ -20,47 +15,53 @@ export class BoardService {
     { title: 'Done', tasks: [] },
   ];
   // TODO: Rework with try/catch
-  boardsInitial: Board[] = JSON.parse(
+  public boardsInitial: Board[] = JSON.parse(
     localStorage.getItem('boards') || JSON.stringify(this.firstRun)
   );
   private boards = new BehaviorSubject(this.boardsInitial);
-  // should be public
   public boards$ = this.boards.asObservable();
 
   get boardsValue(): Array<Board> {
-    return  [...this.boards.value];
+    return [...this.boards.value];
   }
 
-  //TODO: naming arguments, it's not a num, is index
-  addTask(boardNum: number | null, taskText: string): void {
-    if (boardNum === null) return;
+  public addTask(boardIndex: number | null, taskText: string): void {
+    if (boardIndex === null) return;
 
-    // TODO: this.boards.value move to getter
     const boards = this.boardsValue;
-    boards[boardNum].tasks = [...boards[boardNum].tasks, taskText];
+    boards[boardIndex].tasks = [...boards[boardIndex].tasks, taskText];
 
     this.boards.next(boards);
     localStorage.setItem('boards', JSON.stringify(boards));
   }
 
-  editTask(boardNum: number, taskNum: number, inputValue: string): void {
+  public editTask(
+    boardIndex: number,
+    taskNum: number,
+    inputValue: string
+  ): void {
     const boards = [...this.boards.value];
 
-    boards[boardNum].tasks[taskNum] = inputValue;
+    boards[boardIndex].tasks[taskNum] = inputValue;
 
     this.boards.next(boards);
     localStorage.setItem('boards', JSON.stringify(boards));
   }
-  // TODO: All strings should be in constants, for UP | DOWN should be in type
-  rearrangeTasks(indexes: IndexesData, type: Direction): void {
+
+  public rearrangeTasks(indexes: IndexesData, type: Direction): void {
     const boards = [...this.boards.value];
     const currentTask = boards[indexes.start.col].tasks[indexes.start.task];
     const startColumn = boards[indexes.start.col];
     const endColumn = boards[indexes.end.col];
 
-    startColumn.tasks = [...startColumn.tasks.filter((_, index) => index !== indexes.start.task)];
+    startColumn.tasks = [
+      ...startColumn.tasks.filter((_, index) => index !== indexes.start.task),
+    ];
 
-    if (indexes.start.col === indexes.end.col && indexes.start.task < indexes.end.task) {
+    if (
+      indexes.start.col === indexes.end.col &&
+      indexes.start.task < indexes.end.task
+    ) {
       indexes.end.task -= 1;
     }
 
@@ -72,10 +73,12 @@ export class BoardService {
     localStorage.setItem('boards', JSON.stringify(boards));
   }
 
-  deleteTask(boardIndex: number, taskIndex: number): void {
+  public deleteTask(boardIndex: number, taskIndex: number): void {
     const boards = [...this.boards.value];
 
-    boards[boardIndex].tasks = [...boards[boardIndex].tasks.filter((_, index) => index !== taskIndex)];
+    boards[boardIndex].tasks = [
+      ...boards[boardIndex].tasks.filter((_, index) => index !== taskIndex),
+    ];
 
     this.boards.next(boards);
     localStorage.setItem('boards', JSON.stringify(boards));

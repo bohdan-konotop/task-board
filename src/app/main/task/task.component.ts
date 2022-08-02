@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { ModalWindowService } from '../../services/modal-window.service'; // TODO: Rework to alias import (Add to tsconfig.ts)
-import { BoardService } from '../../services/board.service'; // TODO: Rework to alias import (Add to tsconfig.ts)
+import { ModalWindowService } from '@services/modal-window.service';
+import { BoardService } from '@services/board.service';
 
 @Component({
   selector: 'app-task',
@@ -8,20 +8,20 @@ import { BoardService } from '../../services/board.service'; // TODO: Rework to 
   styleUrls: ['./task.component.scss'],
 })
 export class TaskComponent {
-  @Input() task = '';
-  @Input() boardIndex = 0;
-  @Input() taskIndex = 0;
+  @Input() public task = '';
+  @Input() public boardIndex = 0;
+  @Input() public taskIndex = 0;
 
   constructor(
     private modal: ModalWindowService,
     private boardService: BoardService
   ) {}
 
-  editTask(boardIndex: number, taskIndex: number, task: string): void {
+  public editTask(boardIndex: number, taskIndex: number, task: string): void {
     this.modal.editTaskModal(boardIndex, taskIndex, task);
   }
 
-  deleteTask(boardIndex: number, taskIndex: number) {
+  public deleteTask(boardIndex: number, taskIndex: number): void {
     this.boardService.deleteTask(boardIndex, taskIndex);
   }
 }

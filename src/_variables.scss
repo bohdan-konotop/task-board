@@ -1,0 +1,26 @@
+:root {
+  --main-radius: 5px;
+  --white-background: #fff;
+  --white-color: #fff;
+  --background-gray: #efefef;
+  --border-instead-margin: 7px solid var(--background-gray-light);
+  --fz-medium: 14px;
+  --fz-large: 15px;
+  --background-gray-light: #eaeaea;
+  --background-black-50: rgb(0 0 0 / 0.5);
+  --gray-border-input: 3px solid #eaeaea;
+  --gray-border-separator: 1px solid #dedede;
+
+  --red-btn-background: rgb(255 46 46);
+  --red-btn-background-50: rgb(255 46 46 / 0.5);
+  --red-btn-background-80: rgb(255 46 46 / 0.8);
+  --red-btn-color: #540000;
+
+  --green-btn-background: rgb(98 255 93);
+  --green-btn-background-50: rgb(98 255 93 / 0.5);
+  --green-btn-background-80: rgb(98 255 93 / 0.8);
+  --green-btn-color: #065400;
+
+  --edit-btn-color: #ffbf33;
+  --delete-btn-color: #ff2e2e;
+}

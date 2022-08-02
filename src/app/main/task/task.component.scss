@@ -2,11 +2,11 @@
   display: flex;
   flex-direction: column;
   padding: 15px;
-  background: #fff; // TODO: to css variable
-  border-radius: 5px; // TODO: to css variable
+  background: var(--white-background);
+  border-radius: var(--main-radius);
 
   &__title {
-    font-size: 15px; // TODO: to css variable
+    font-size: var(--fz-large);
   }
 
   &__btns {
@@ -32,11 +32,11 @@
   }
 
   &__edit-btn {
-    color: #ffbf33; // TODO: to css variable
+    color: var(--edit-btn-color);
   }
 
   &__delete-btn {
-    color: #ff2e2e; // TODO: to css variable
+    color: var(--delete-btn-color);
     margin-left: 10px;
   }
 }

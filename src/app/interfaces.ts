@@ -1,3 +1,5 @@
+import { ModalAction } from '@enums';
+
 export interface Board {
   title: string;
   tasks: string[];
@@ -5,7 +7,7 @@ export interface Board {
 
 export interface Modal {
   show: boolean;
-  activity: 'Add' | 'Edit' | null;
+  action: ModalAction;
   boardNum: number | null;
   taskNum?: number;
   editText?: string;

@@ -1,16 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { ModalWindowService } from '../services/modal-window.service';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ModalWindowService } from '@services/modal-window.service';
 import { FormControl, Validators } from '@angular/forms';
-import { BoardService } from '../services/board.service';
+import { BoardService } from '@services/board.service';
+import { ModalAction } from '@enums';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-modal',
   templateUrl: './modal.component.html',
   styleUrls: ['./modal.component.scss'],
 })
-export class ModalComponent implements OnInit {
-  modal = this.modalService.modalInitial;
-  input = new FormControl('', [Validators.required, Validators.minLength(1)]);
+export class ModalComponent implements OnInit, OnDestroy {
+  public modal = this.modalService.modalInitial;
+  public input = new FormControl('', [
+    Validators.required,
+    Validators.minLength(1),
+  ]);
+  private subscription: Subscription = new Subscription();
 
   constructor(
     private modalService: ModalWindowService,
@@ -18,18 +24,17 @@ export class ModalComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // TODO: add destroy$ Subject
-    this.modalService.modal$.subscribe((modal) => {
-      this.modal = modal;
-      this.input.setValue(modal.editText || '');
-    });
+    this.initial();
   }
 
-    // TODO: add enums for strings
-  modalAction(action: 'Add' | 'Edit' | null, taskIndex: number = 0): void {
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
+
+  public modalAction(action: ModalAction, taskIndex: number = 0): void {
     if (this.input.invalid || this.modal.boardNum === null) return;
 
-    if (action === 'Add') {
+    if (action === ModalAction.ADD) {
       this.boardService.addTask(this.modal.boardNum, this.input.value || '');
       this.closeModal();
       return;
@@ -43,8 +48,17 @@ export class ModalComponent implements OnInit {
     this.closeModal();
   }
 
-  closeModal() {
+  public closeModal() {
     this.input.reset();
     this.modalService.closeModal();
+  }
+
+  private initial() {
+    this.subscription.add(
+      this.modalService.modal$.subscribe((modal) => {
+        this.modal = modal;
+        this.input.setValue(modal.editText || '');
+      })
+    );
   }
 }
