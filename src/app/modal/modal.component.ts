@@ -3,7 +3,7 @@ import { ModalWindowService } from '@services/modal-window.service';
 import { FormControl, Validators } from '@angular/forms';
 import { BoardService } from '@services/board.service';
 import { ModalAction } from '@enums';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-modal',
@@ -16,7 +16,7 @@ export class ModalComponent implements OnInit, OnDestroy {
     Validators.required,
     Validators.minLength(1),
   ]);
-  private subscription: Subscription = new Subscription();
+  private destroy$ = new Subject();
 
   constructor(
     private modalService: ModalWindowService,
@@ -28,7 +28,8 @@ export class ModalComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription.unsubscribe();
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
   public modalAction(action: ModalAction, taskIndex: number = 0): void {
@@ -54,11 +55,9 @@ export class ModalComponent implements OnInit, OnDestroy {
   }
 
   private initial() {
-    this.subscription.add(
-      this.modalService.modal$.subscribe((modal) => {
-        this.modal = modal;
-        this.input.setValue(modal.editText || '');
-      })
-    );
+    this.modalService.modal$.subscribe((modal) => {
+      this.modal = modal;
+      this.input.setValue(modal.editText || '');
+    });
   }
 }

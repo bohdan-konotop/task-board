@@ -28,9 +28,7 @@ export class MainComponent implements OnInit, AfterViewInit {
   private dragOverEvents$: Array<Observable<DragEvent>> = [];
   private dragEndEvents$: Array<Observable<DragEvent>> = [];
 
-  // TODO: read about takeUntil operator rxjs
-  //private subscription = new Subscription();
-  private notifier$ = new Subject();
+  private destroy$ = new Subject();
 
   private dragStartDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
   private dragEndDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
@@ -123,8 +121,9 @@ export class MainComponent implements OnInit, AfterViewInit {
     this.boardService.boards$.subscribe((boards) => {
       this.boards = boards;
       this.pushExpectedTasks();
-      //this.notifier$.complete();
-      //this.subscription.unsubscribe();
+      this.destroy$.next(true);
+      this.destroy$.complete();
+      this.destroy$ = new Subject();
       this.drag();
     });
   }
@@ -141,8 +140,9 @@ export class MainComponent implements OnInit, AfterViewInit {
   private drag(): void {
     if (!Array.from(this.childrenList).length) return;
 
-    //this.subscription = new Subscription();
-    this.notifier$.complete();
+    this.destroy$.next(true);
+    this.destroy$.complete();
+    this.destroy$ = new Subject();
 
     setTimeout(() => {
       this.pushDragEvents();
@@ -177,38 +177,27 @@ export class MainComponent implements OnInit, AfterViewInit {
       const boardChildren = (childDiv as HTMLDivElement).children;
 
       Array.from(boardChildren).forEach((task) => {
-        this.dragStartEvents$.push(
-          fromEvent<DragEvent>(task, 'dragstart').pipe(
-            takeUntil(this.notifier$)
-          )
-        );
-        this.dragOverEvents$.push(
-          fromEvent<DragEvent>(task, 'dragover').pipe(takeUntil(this.notifier$))
-        );
-        this.dragEndEvents$.push(
-          fromEvent<DragEvent>(task, 'dragend').pipe(takeUntil(this.notifier$))
-        );
+        this.dragStartEvents$.push(fromEvent<DragEvent>(task, 'dragstart'));
+        this.dragOverEvents$.push(fromEvent<DragEvent>(task, 'dragover'));
+        this.dragEndEvents$.push(fromEvent<DragEvent>(task, 'dragend'));
       });
     });
   }
 
   private dragStart(): void {
     this.dragStartEvents$.forEach((event$) => {
-      //this.subscription.add(
-      event$.subscribe((dragStart) => {
+      event$.pipe(takeUntil(this.destroy$)).subscribe((dragStart) => {
         this.dragStartDiv = dragStart.currentTarget as HTMLDivElement;
         (dragStart.currentTarget as HTMLDivElement).style.opacity = '0.4';
         (dragStart.currentTarget as HTMLDivElement).style.border = '0';
         (dragStart.currentTarget as HTMLDivElement).style.padding = '7px 0';
       });
-      //);
     });
   }
 
   private dragOver(): void {
     this.dragOverEvents$.forEach((event$) =>
-      //this.subscription.add(
-      event$.subscribe((dragOver) => {
+      event$.pipe(takeUntil(this.destroy$)).subscribe((dragOver) => {
         dragOver.preventDefault();
 
         this.pushExpectedTasks();
@@ -233,13 +222,11 @@ export class MainComponent implements OnInit, AfterViewInit {
         else if (this.position === Direction.DOWN) expectedTask.down = true;
       })
     );
-    //);
   }
 
   private dragEnd(): void {
     this.dragEndEvents$.forEach((event$) => {
-      //this.subscription.add(
-      event$.subscribe((dragEnd) => {
+      event$.pipe(takeUntil(this.destroy$)).subscribe((dragEnd) => {
         this.pushExpectedTasks();
 
         (dragEnd.currentTarget as HTMLDivElement).removeAttribute('style');
@@ -255,7 +242,6 @@ export class MainComponent implements OnInit, AfterViewInit {
 
         this.boardService.rearrangeTasks(indexes, this.position);
       });
-      //);
     });
   }
 
