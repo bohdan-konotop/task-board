@@ -8,7 +8,7 @@ import {
 import { BoardService } from '@services/board.service';
 import { Board, ExpectedTask, IndexesData } from '@interfaces';
 import { ModalWindowService } from '@services/modal-window.service';
-import { first, fromEvent, Observable, Subject, takeUntil } from 'rxjs';
+import { delay, first, fromEvent, Observable, Subject, takeUntil } from 'rxjs';
 import { Direction } from '@enums';
 
 @Component({
@@ -125,13 +125,15 @@ export class MainComponent implements OnInit, AfterViewInit {
       this.drag();
     });
 
-    this.boardService.boards$.pipe(first()).subscribe(() => {
-      setTimeout(() => {
+    this.boardService.boards$
+      .pipe(
+        first(),
+        delay(0),
+      ).subscribe(() => {
         this.findingChildrenList();
-        this.drag();
-      }, 0);
-    });
-  }
+        this.drag();;
+      });
+    }
 
   private findingChildrenList() {
     const boards =
