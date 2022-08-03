@@ -8,7 +8,7 @@ import {
 import { BoardService } from '@services/board.service';
 import { Board, ExpectedTask, IndexesData } from '@interfaces';
 import { ModalWindowService } from '@services/modal-window.service';
-import { fromEvent, Observable, Subject, takeUntil } from 'rxjs';
+import { first, fromEvent, Observable, Subject, takeUntil } from 'rxjs';
 import { Direction } from '@enums';
 
 @Component({
@@ -19,7 +19,7 @@ import { Direction } from '@enums';
 export class MainComponent implements OnInit, AfterViewInit {
   @ViewChild('boardDiv') boardDiv: ElementRef | undefined;
 
-  public boards: Board[] = this.boardService.boardsInitial;
+  public boards: Board[] = [];
   public expectedTasks: ExpectedTask[][] = [];
 
   private childrenList: HTMLDivElement[] = [];
@@ -121,10 +121,15 @@ export class MainComponent implements OnInit, AfterViewInit {
     this.boardService.boards$.subscribe((boards) => {
       this.boards = boards;
       this.pushExpectedTasks();
-      this.destroy$.next(true);
-      this.destroy$.complete();
-      this.destroy$ = new Subject();
+      this.rebuildDestroy$();
       this.drag();
+    });
+
+    this.boardService.boards$.pipe(first()).subscribe(() => {
+      setTimeout(() => {
+        this.findingChildrenList();
+        this.drag();
+      }, 0);
     });
   }
 
@@ -132,6 +137,8 @@ export class MainComponent implements OnInit, AfterViewInit {
     const boards =
       (this.boardDiv?.nativeElement as HTMLDivElement).children || null;
     if (boards === null) return;
+
+    this.childrenList = [];
     Array.from(boards).forEach((board) =>
       this.childrenList.push(board?.children[1] as HTMLDivElement)
     );
@@ -140,9 +147,7 @@ export class MainComponent implements OnInit, AfterViewInit {
   private drag(): void {
     if (!Array.from(this.childrenList).length) return;
 
-    this.destroy$.next(true);
-    this.destroy$.complete();
-    this.destroy$ = new Subject();
+    this.rebuildDestroy$();
 
     setTimeout(() => {
       this.pushDragEvents();
@@ -259,5 +264,11 @@ export class MainComponent implements OnInit, AfterViewInit {
     const boardChildren = !!board ? Array.from(board.children) : [];
 
     return boardChildren.findIndex((board) => board === child);
+  }
+
+  private rebuildDestroy$() {
+    this.destroy$.next(true);
+    this.destroy$.complete();
+    this.destroy$ = new Subject();
   }
 }

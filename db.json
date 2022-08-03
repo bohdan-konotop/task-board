@@ -1,0 +1,30 @@
+{
+  "boards": [
+    {
+      "body": [
+        {
+          "title": "Todo",
+          "tasks": [
+            "1",
+            "2"
+          ]
+        },
+        {
+          "title": "In Progress",
+          "tasks": [
+            "3",
+            "4",
+            "5"
+          ]
+        },
+        {
+          "title": "Done",
+          "tasks": [
+            "6"
+          ]
+        }
+      ],
+      "id": 1
+    }
+  ]
+}

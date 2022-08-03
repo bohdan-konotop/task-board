@@ -1,25 +1,21 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, first } from 'rxjs';
 import { Board, IndexesData } from '@interfaces';
 import { Direction } from '@enums';
+import { DatabaseService } from '@services/database.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class BoardService {
-  // TODO: ADD service from API
-  private firstRun = [
-    { title: 'Todo', tasks: [] },
-    { title: 'In Progress', tasks: [] },
-    { title: 'Review', tasks: [] },
-    { title: 'Done', tasks: [] },
-  ];
-  // TODO: Rework with try/catch
-  public boardsInitial: Board[] = JSON.parse(
-    localStorage.getItem('boards') || JSON.stringify(this.firstRun)
-  );
-  private boards = new BehaviorSubject(this.boardsInitial);
+  private boards: BehaviorSubject<Board[]> = new BehaviorSubject<Board[]>([]);
   public boards$ = this.boards.asObservable();
+
+  constructor(private db: DatabaseService) {
+    this.db.boardsFromServer.pipe(first()).subscribe((boards) => {
+      this.boards.next(boards.body);
+    });
+  }
 
   get boardsValue(): Array<Board> {
     return [...this.boards.value];
@@ -32,7 +28,7 @@ export class BoardService {
     boards[boardIndex].tasks = [...boards[boardIndex].tasks, taskText];
 
     this.boards.next(boards);
-    localStorage.setItem('boards', JSON.stringify(boards));
+    this.db.setBoardsOnServer(boards).subscribe();
   }
 
   public editTask(
@@ -40,16 +36,16 @@ export class BoardService {
     taskNum: number,
     inputValue: string
   ): void {
-    const boards = [...this.boards.value];
+    const boards = this.boardsValue;
 
     boards[boardIndex].tasks[taskNum] = inputValue;
 
     this.boards.next(boards);
-    localStorage.setItem('boards', JSON.stringify(boards));
+    this.db.setBoardsOnServer(boards).subscribe();
   }
 
   public rearrangeTasks(indexes: IndexesData, type: Direction): void {
-    const boards = [...this.boards.value];
+    const boards = this.boardsValue;
     const currentTask = boards[indexes.start.col].tasks[indexes.start.task];
     const startColumn = boards[indexes.start.col];
     const endColumn = boards[indexes.end.col];
@@ -70,17 +66,18 @@ export class BoardService {
     endColumn.tasks.splice(countIndex, 0, currentTask);
 
     this.boards.next(boards);
-    localStorage.setItem('boards', JSON.stringify(boards));
+    this.db.setBoardsOnServer(boards).subscribe();
   }
 
   public deleteTask(boardIndex: number, taskIndex: number): void {
-    const boards = [...this.boards.value];
+    const boards = this.boardsValue;
 
     boards[boardIndex].tasks = [
       ...boards[boardIndex].tasks.filter((_, index) => index !== taskIndex),
     ];
 
     this.boards.next(boards);
-    localStorage.setItem('boards', JSON.stringify(boards));
+
+    this.db.setBoardsOnServer(boards).subscribe();
   }
 }

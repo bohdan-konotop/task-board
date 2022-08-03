@@ -22,3 +22,8 @@ export interface ExpectedTask {
   up: boolean;
   down: boolean;
 }
+
+export interface Server {
+  id: number;
+  body: Board[];
+}
