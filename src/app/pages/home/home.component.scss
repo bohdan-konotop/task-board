@@ -1,0 +1,61 @@
+@import "src/app/app.component";
+
+.projects {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 30px;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 30px;
+
+  &__card {
+    text-decoration: none;
+    color: var(--main-color);
+    cursor: pointer;
+
+    &:hover &-col {
+      border: var(--green-card-border-80);
+      box-shadow: var(--green-card-shadow);
+    }
+
+    &:active &-col {
+      border: var(--green-card-border);
+      color: var(--green-card-color);
+      transition: none;
+    }
+
+    &-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 150px;
+      border: var(--green-card-border-50);
+      border-radius: var(--main-radius);
+      transition: 0.1s;
+
+      &__item {
+        padding: 5px 10px;
+      }
+
+      &__add {
+        font-size: 120px;
+        font-weight: 700;
+        color: var(--green-card-add-color-50);
+      }
+    }
+
+    &-title {
+      text-align: center;
+    }
+
+    &:hover &-col__add {
+      color: var(--green-card-add-color-80);
+    }
+
+    &:active &-col__add {
+      color: var(--green-card-add-color);
+      transition: none;
+    }
+  }
+}

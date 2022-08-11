@@ -1,0 +1,12 @@
+<header class="header">
+  <nav>
+    <ul class="header__list">
+      <li class="header__list__item">
+        <a class="header__list__item-link" routerLink="/">Home</a>
+      </li>
+      <li *ngFor="let project of projects | async" class="header__list__item">
+        <a [routerLink]="['/board/', project.id]" class="header__list__item-link">{{project.name}}</a>
+      </li>
+    </ul>
+  </nav>
+</header>

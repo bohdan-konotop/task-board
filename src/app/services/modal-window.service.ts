@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { Modal } from '@interfaces';
-import { ModalAction } from '@enums';
+import { Modal } from '@typescript/interfaces';
+import { ModalAction } from '@typescript/enums';
 
 @Injectable({
   providedIn: 'root',
@@ -10,28 +10,41 @@ export class ModalWindowService {
   public modalInitial: Modal = {
     show: false,
     action: ModalAction.ADD,
-    boardNum: null,
   };
 
   private modal = new BehaviorSubject<Modal>(this.modalInitial);
   public modal$ = this.modal.asObservable();
 
-  public addTaskModal(boardNum: number | null): void {
-    this.modal.next({ show: true, action: ModalAction.ADD, boardNum });
+  public addTaskModal(boardNum: number | undefined, projectId: number): void {
+    this.modal.next({
+      show: true,
+      action: ModalAction.ADD,
+      boardNum,
+      projectId,
+    });
   }
 
   public editTaskModal(
-    boardNum: number | null,
+    boardNum: number,
     taskNum: number,
-    editText: string
+    editText: string,
+    projectId: number
   ): void {
-    if (boardNum === null) return;
     this.modal.next({
       show: true,
       action: ModalAction.EDIT,
       boardNum,
       taskNum,
       editText,
+      projectId,
+    });
+  }
+
+  public addProject(projectId: number) {
+    this.modal.next({
+      show: true,
+      action: ModalAction.ADD_PROJECT,
+      projectId,
     });
   }
 

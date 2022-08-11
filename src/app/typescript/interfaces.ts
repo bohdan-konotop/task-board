@@ -1,4 +1,4 @@
-import { ModalAction } from '@enums';
+import { ModalAction } from './enums';
 
 export interface Board {
   title: string;
@@ -8,7 +8,8 @@ export interface Board {
 export interface Modal {
   show: boolean;
   action: ModalAction;
-  boardNum: number | null;
+  projectId?: number;
+  boardNum?: number;
   taskNum?: number;
   editText?: string;
 }
@@ -26,4 +27,26 @@ export interface ExpectedTask {
 export interface Server {
   id: number;
   body: Board[];
+}
+
+export interface BoardServer {
+  id: number;
+  name: string;
+}
+
+export interface ColumnServer {
+  id: number;
+  cols: ColServer[];
+}
+
+export interface ColServer {
+  id: number;
+  title: string;
+}
+
+export interface TaskServer {
+  id: number;
+  name: string;
+  boardId: number;
+  status: number;
 }

@@ -2,14 +2,14 @@
   <span class="board-task__title">{{ task }}</span>
   <div class="board-task__btns">
     <button
-      (click)="editTask(boardIndex, taskIndex, task)"
+      (click)="editTask(boardIndex, taskIndex, task, projectId)"
       class="board-task__edit-btn"
     >
       <svg>
         <use xlink:href="./assets/icons/edit.svg#edit"></use>
       </svg>
     </button>
-    <button (click)="deleteTask(boardIndex, taskIndex)" class="board-task__delete-btn">
+    <button (click)="deleteTask(boardIndex, taskIndex, projectId)" class="board-task__delete-btn">
       <svg>
         <use xlink:href="./assets/icons/delete.svg#delete"></use>
       </svg>

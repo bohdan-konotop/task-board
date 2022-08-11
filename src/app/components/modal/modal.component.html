@@ -1,0 +1,30 @@
+<form
+  (ngSubmit)="action()"
+  *ngIf="modal.show"
+  [formGroup]="form"
+  class="modal__wrapper"
+>
+  <div class="modal">
+    <div class="modal__header">
+      <button (click)="closeModal()" class="modal__close" type="button">x</button>
+      <h2 class="modal__title">{{ modal.action }}</h2>
+    </div>
+    <div class="modal__body">
+      <input
+        (keyup.escape)="closeModal()"
+        autofocus
+        class="modal__body__input"
+        formControlName="input"
+        type="text"
+      />
+    </div>
+    <div class="modal__footer">
+      <button (click)="closeModal()" class="modal__footer__close" type="button">
+        Close
+      </button>
+      <button class="modal__footer__action" type="submit">
+        {{ modal.action }}
+      </button>
+    </div>
+  </div>
+</form>

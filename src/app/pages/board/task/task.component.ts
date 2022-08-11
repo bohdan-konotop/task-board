@@ -11,17 +11,27 @@ export class TaskComponent {
   @Input() public task = '';
   @Input() public boardIndex = 0;
   @Input() public taskIndex = 0;
+  @Input() public projectId: number = 0;
 
   constructor(
     private modal: ModalWindowService,
     private boardService: BoardService
   ) {}
 
-  public editTask(boardIndex: number, taskIndex: number, task: string): void {
-    this.modal.editTaskModal(boardIndex, taskIndex, task);
+  public editTask(
+    boardIndex: number,
+    taskIndex: number,
+    task: string,
+    projectId: number
+  ): void {
+    this.modal.editTaskModal(boardIndex, taskIndex, task, projectId);
   }
 
-  public deleteTask(boardIndex: number, taskIndex: number): void {
-    this.boardService.deleteTask(boardIndex, taskIndex);
+  public deleteTask(
+    boardIndex: number,
+    taskIndex: number,
+    projectId: number
+  ): void {
+    this.boardService.deleteTask(boardIndex, taskIndex, projectId);
   }
 }

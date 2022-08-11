@@ -1,3 +1,7 @@
+<app-header></app-header>
+
+<h1 class="title">Task Board</h1>
+
 <div #boardDiv (dragover)="$event.preventDefault()" class="board">
   <div *ngFor="let board of boards; let boardIndex = index" class="board-col">
     <span class="board-title">{{ board.title }}</span>
@@ -13,6 +17,7 @@
         <app-task
           (drop)="$event.preventDefault()"
           [boardIndex]="boardIndex"
+          [projectId]="projectId"
           [taskIndex]="taskIndex"
           [task]="task"
           class="board-task__app"

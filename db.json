@@ -4,7 +4,6 @@
       "id": 1,
       "name": "Board 1"
     },
-
     {
       "id": 2,
       "name": "Board 2"
@@ -13,13 +12,13 @@
   "tasks": [
     {
       "id": 1,
-      "name": "Task 1",
-      "status": 1,
+      "name": "Apple",
+      "status": 2,
       "boardId": 1
     },
     {
       "id": 2,
-      "name": "Task 1.1",
+      "name": "Banana",
       "status": 1,
       "boardId": 1
     },
@@ -32,13 +31,84 @@
     {
       "id": 4,
       "name": "Task 2.2",
-      "status": 1,
+      "status": 4,
       "boardId": 2
+    },
+    {
+      "name": "Coconut",
+      "status": 3,
+      "boardId": 1,
+      "id": 5
+    },
+    {
+      "name": "Cucumber",
+      "status": 2,
+      "boardId": 1,
+      "id": 6
+    },
+    {
+      "name": "Pineapple",
+      "status": 1,
+      "boardId": 1,
+      "id": 8
+    },
+    {
+      "name": "Grape",
+      "status": 1,
+      "boardId": 1,
+      "id": 9
+    },
+    {
+      "name": "Task 23",
+      "status": 2,
+      "boardId": 2,
+      "id": 10
+    },
+    {
+      "name": "Task 24",
+      "status": 3,
+      "boardId": 2,
+      "id": 11
     }
   ],
   "columns": [
-    { "id": 1, "title": "TODO" },
-    { "id": 2, "title": "IN_PROGRESS"},
-    { "id": 3, "title": "DONE" }
+    {
+      "id": 1,
+      "cols": [
+        {
+          "id": 1,
+          "title": "Todo"
+        },
+        {
+          "id": 2,
+          "title": "In Progress"
+        },
+        {
+          "id": 3,
+          "title": "Done"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "cols": [
+        {
+          "id": 1,
+          "title": "Todo"
+        },
+        {
+          "id": 2,
+          "title": "In Progress"
+        },
+        {
+          "id": 3,
+          "title": "Review"
+        },
+        {
+          "id": 4,
+          "title": "Done"
+        }
+      ]
+    }
   ]
 }

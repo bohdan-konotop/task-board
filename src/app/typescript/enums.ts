@@ -4,6 +4,7 @@ export enum Direction {
 }
 
 export enum ModalAction {
-  ADD = 'add',
-  EDIT = 'edit',
+  ADD_PROJECT = 'Add Project',
+  ADD = 'Add Task',
+  EDIT = 'Edit Task',
 }

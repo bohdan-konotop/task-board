@@ -1,0 +1,26 @@
+<app-header></app-header>
+
+
+<h1 class="title">Projects</h1>
+
+<div class="projects">
+  <a
+    *ngFor="let board of boards | async; let boardIndex = index"
+    [routerLink]="['board/', boardIndex+1]"
+    class="projects__card"
+  >
+    <div *ngIf="!!columns?.[boardIndex]?.cols" class="projects__card-col">
+      <span
+        *ngFor="let col of columns[boardIndex].cols; let index = index"
+        class="projects__card-col__item"
+      >{{ col.title }}</span
+      >
+    </div>
+    <p class="projects__card-title">{{ board.name }}</p>
+  </a>
+  <a (click)="addProject()" class="projects__card">
+    <div class="projects__card-col">
+      <span class="projects__card-col__add">+</span>
+    </div>
+  </a>
+</div>

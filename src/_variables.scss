@@ -1,7 +1,19 @@
 :root {
+  // HOME
+  --green-card-border: 3px solid rgb(98 255 93);
+  --green-card-border-50: 3px solid rgb(98 255 93 / 0.5);
+  --green-card-border-80: 3px solid rgb(98 255 93 / 0.8);
+  --green-card-shadow: 0 0 5px 7px #06540008;
+  --green-card-color: #065400;
+  --green-card-add-color: rgb(98 255 93);
+  --green-card-add-color-50: rgb(98 255 93/ 0.5);
+  --green-card-add-color-80: rgb(98 255 93/0.8);
+
+  // BOARD
   --main-radius: 5px;
   --white-background: #fff;
   --white-color: #fff;
+  --main-color: #000;
   --background-gray: #efefef;
   --border-instead-margin: 7px solid var(--background-gray-light);
   --fz-medium: 14px;

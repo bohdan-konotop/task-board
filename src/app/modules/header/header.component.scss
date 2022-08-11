@@ -1,0 +1,26 @@
+.header {
+  background: var(--main-color);
+  margin: 0 30px;
+
+  &__list {
+    overflow-x: auto;
+    white-space: nowrap;
+    margin: 0;
+    padding-left: 0;
+
+    &__item {
+      display: inline-block;
+      list-style: none;
+
+      &-link {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        color: var(--white-color);
+        text-decoration: none;
+        font-weight: 700;
+        padding: 0 15px;
+      }
+    }
+  }
+}

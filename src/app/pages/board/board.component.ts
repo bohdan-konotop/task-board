@@ -2,26 +2,35 @@ import {
   AfterViewInit,
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
 import { BoardService } from '@services/board.service';
-import { Board, ExpectedTask, IndexesData } from '@interfaces';
+import { Board, ExpectedTask, IndexesData } from '@typescript/interfaces';
 import { ModalWindowService } from '@services/modal-window.service';
-import { delay, first, fromEvent, Observable, Subject, takeUntil } from 'rxjs';
-import { Direction } from '@enums';
+import {
+  delay,
+  fromEvent,
+  Observable,
+  skip,
+  Subject,
+  Subscription,
+  takeUntil,
+} from 'rxjs';
+import { Direction } from '@typescript/enums';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
-  selector: 'app-main',
-  templateUrl: './main.component.html',
-  styleUrls: ['./main.component.scss'],
+  selector: 'app-board',
+  templateUrl: './board.component.html',
+  styleUrls: ['./board.component.scss'],
 })
-export class MainComponent implements OnInit, AfterViewInit {
+export class BoardComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('boardDiv') boardDiv: ElementRef | undefined;
-
+  public projectId = 0;
   public boards: Board[] = [];
   public expectedTasks: ExpectedTask[][] = [];
-
   private childrenList: HTMLDivElement[] = [];
 
   private dragStartEvents$: Array<Observable<DragEvent>> = [];
@@ -29,6 +38,7 @@ export class MainComponent implements OnInit, AfterViewInit {
   private dragEndEvents$: Array<Observable<DragEvent>> = [];
 
   private destroy$ = new Subject();
+  private subscription$ = new Subscription();
 
   private dragStartDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
   private dragEndDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
@@ -38,13 +48,15 @@ export class MainComponent implements OnInit, AfterViewInit {
 
   constructor(
     private boardService: BoardService,
-    private modal: ModalWindowService
+    private modal: ModalWindowService,
+    private route: ActivatedRoute
   ) {}
 
   private get indexOfStartCol(): number {
     const startBoardColChild =
       (this.dragStartDiv.parentNode?.parentNode as HTMLDivElement) || null;
     const startBoards = startBoardColChild?.parentNode || null;
+
     return this.findIndexOfChild(startBoards, startBoardColChild);
   }
 
@@ -74,6 +86,7 @@ export class MainComponent implements OnInit, AfterViewInit {
       this.dragEndDiv.parentNode?.parentNode?.parentNode || null;
     const endBoardChild =
       (this.dragEndDiv.parentNode?.parentNode as HTMLDivElement) || null;
+
     return this.findIndexOfChild(endBoards, endBoardChild);
   }
 
@@ -100,11 +113,22 @@ export class MainComponent implements OnInit, AfterViewInit {
 
   private get position() {
     if (this.blockHeight / 2 < this.offset) return Direction.DOWN;
+
     return Direction.UP;
   }
 
   ngOnInit(): void {
+    this.route.params.subscribe((params) => {
+      this.projectId = Number(params['boardId']);
+
+      this.boardService.updateBoardsById(this.projectId);
+    });
+
     this.boardSubscriber();
+  }
+
+  ngOnDestroy() {
+    this.subscription$.unsubscribe();
   }
 
   ngAfterViewInit(): void {
@@ -114,26 +138,26 @@ export class MainComponent implements OnInit, AfterViewInit {
   }
 
   public addTask(boardIndex: number): void {
-    this.modal.addTaskModal(boardIndex);
+    this.modal.addTaskModal(boardIndex, this.projectId);
   }
 
   private boardSubscriber() {
-    this.boardService.boards$.subscribe((boards) => {
-      this.boards = boards;
-      this.pushExpectedTasks();
-      this.rebuildDestroy$();
-      this.drag();
-    });
+    this.subscription$.add(
+      this.boardService.boards$.pipe(skip(1)).subscribe((boards) => {
+        this.boards = boards;
+        this.pushExpectedTasks();
+        this.rebuildDestroy$();
+        this.drag();
+      })
+    );
 
-    this.boardService.boards$
-      .pipe(
-        first(),
-        delay(0),
-      ).subscribe(() => {
+    this.subscription$.add(
+      this.boardService.boards$.pipe(skip(1), delay(0)).subscribe(() => {
         this.findingChildrenList();
-        this.drag();;
-      });
-    }
+        this.drag();
+      })
+    );
+  }
 
   private findingChildrenList() {
     const boards =
@@ -247,7 +271,11 @@ export class MainComponent implements OnInit, AfterViewInit {
           end: { col: this.indexOfEndCol, task: this.indexOfEndTask },
         };
 
-        this.boardService.rearrangeTasks(indexes, this.position);
+        this.boardService.rearrangeTasks(
+          indexes,
+          this.position,
+          this.projectId
+        );
       });
     });
   }
