@@ -9,7 +9,7 @@
     [routerLink]="['board/', boardIndex+1]"
     class="projects__card"
   >
-    <div *ngIf="!!columns?.[boardIndex]?.cols" class="projects__card-col">
+    <div *ngIf="!!columns?.[boardIndex]?.cols?.length" class="projects__card-col">
       <span
         *ngFor="let col of columns[boardIndex].cols; let index = index"
         class="projects__card-col__item"

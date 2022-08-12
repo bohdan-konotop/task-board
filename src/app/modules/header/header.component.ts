@@ -7,7 +7,7 @@ import { DatabaseService } from '@services/database.service';
   styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {
-  public projects = this.db.boards;
+  public projects = this.db.getBoards();
 
   constructor(private db: DatabaseService) {}
 }

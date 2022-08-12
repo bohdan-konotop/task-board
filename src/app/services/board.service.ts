@@ -1,13 +1,19 @@
-import { Injectable } from '@angular/core';
-import { BehaviorSubject, first } from 'rxjs';
-import { Board, IndexesData } from '@typescript/interfaces';
+import { Injectable, OnDestroy } from '@angular/core';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  switchMap,
+  takeUntil,
+} from 'rxjs';
+import { Board, ColumnServer, IndexesData } from '@typescript/interfaces';
 import { Direction } from '@typescript/enums';
 import { DatabaseService } from '@services/database.service';
 
 @Injectable({
   providedIn: 'root',
 })
-export class BoardService {
+export class BoardService implements OnDestroy {
   private boards: BehaviorSubject<Board[]> = new BehaviorSubject<Board[]>([]);
   public boards$ = this.boards.asObservable();
 
@@ -15,10 +21,17 @@ export class BoardService {
   private tasks: string[][] = [];
   private columns: Board[] = [];
 
+  private destroy$ = new Subject();
+
   constructor(private db: DatabaseService) {}
 
   get boardsValue(): Array<Board> {
     return [...this.boards.value];
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
   public updateBoardsById(id: number) {
@@ -107,22 +120,25 @@ export class BoardService {
     this.db.deleteTask(projectId, name);
   }
 
-  private getColumns(id: number) {
+  private getColumns(id: number): void {
     this.db
       .getColumnsById(id)
-      .pipe(first())
-      .subscribe((column) => {
-        column.cols.forEach((col) => this.titles.push(col.title));
-        this.tasks = Array.from({ length: this.titles.length }, () => []);
-
-        this.getTasks(id);
-      });
+      .pipe(switchMap((columns) => this.getTasks(id, columns)))
+      .subscribe();
   }
 
-  private getTasks(id: number) {
+  private pushCols(column: ColumnServer): void {
+    column.cols.forEach((col) => {
+      this.titles.push(col.title);
+    });
+    this.tasks = Array.from({ length: this.titles.length }, () => []);
+  }
+
+  private getTasks(id: number, column: ColumnServer): Observable<void> {
+    this.pushCols(column);
     this.db
       .getTasksById(id)
-      .pipe(first())
+      .pipe(takeUntil(this.destroy$))
       .subscribe((tasks) => {
         tasks.forEach((task) => {
           this.tasks[task.status - 1].push(task.name);
@@ -133,5 +149,7 @@ export class BoardService {
         );
         this.boards.next(this.columns);
       });
+
+    return new Observable<void>();
   }
 }

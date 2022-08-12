@@ -6,7 +6,7 @@ import {
   HttpInterceptor,
   HttpRequest,
 } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, retry, throwError } from 'rxjs';
 
 @Injectable()
 export class ErrorsInterceptor implements HttpInterceptor {
@@ -17,8 +17,10 @@ export class ErrorsInterceptor implements HttpInterceptor {
     return next.handle(request).pipe(
       catchError((err: HttpErrorResponse) => {
         console.log('Error message: ', err.message);
+        console.log('Retrying to load data..');
         return throwError(() => err);
-      })
+      }),
+      retry({ count: 5, delay: 1000 })
     );
   }
 }

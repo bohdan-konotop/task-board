@@ -3,7 +3,7 @@ import { ModalWindowService } from '@services/modal-window.service';
 import { FormBuilder, Validators } from '@angular/forms';
 import { BoardService } from '@services/board.service';
 import { ModalAction } from '@typescript/enums';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { DatabaseService } from '@services/database.service';
 
 @Component({
@@ -27,7 +27,7 @@ export class ModalComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.initial();
+    this.initialization();
   }
 
   ngOnDestroy(): void {
@@ -69,19 +69,12 @@ export class ModalComponent implements OnInit, OnDestroy {
   }
 
   private editTask(): void {
-    const boardIndex =
-      Number(this.modal.boardNum) + 1 ? this.modal.boardNum : undefined;
-    const taskIndex =
-      Number(this.modal.taskNum) + 1 ? this.modal.taskNum : undefined;
-    const projectId =
-      Number(this.modal.projectId) + 1 ? this.modal.projectId : undefined;
+    const boardIndex = this.modal.boardNum;
+    const taskIndex = this.modal.taskNum;
+    const projectId = this.modal.projectId;
     const newName = this.form.value.input || '';
 
-    if (
-      boardIndex !== undefined &&
-      taskIndex !== undefined &&
-      projectId !== undefined
-    )
+    if (!!boardIndex && !!taskIndex && !!projectId)
       this.boardService.editTask(boardIndex, taskIndex, newName, projectId);
   }
 
@@ -95,10 +88,12 @@ export class ModalComponent implements OnInit, OnDestroy {
     this.db.setProjectOnServer(projectId, name);
   }
 
-  private initial() {
-    this.modalService.modal$.subscribe((modal) => {
-      this.modal = modal;
-      this.form.controls.input.setValue(modal.editText || '');
-    });
+  private initialization() {
+    this.modalService.modal$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((modal) => {
+        this.modal = modal;
+        this.form.controls.input.setValue(modal.editText || '');
+      });
   }
 }

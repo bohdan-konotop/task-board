@@ -9,15 +9,7 @@ import {
 import { BoardService } from '@services/board.service';
 import { Board, ExpectedTask, IndexesData } from '@typescript/interfaces';
 import { ModalWindowService } from '@services/modal-window.service';
-import {
-  delay,
-  fromEvent,
-  Observable,
-  skip,
-  Subject,
-  Subscription,
-  takeUntil,
-} from 'rxjs';
+import { delay, fromEvent, Observable, skip, Subject, takeUntil } from 'rxjs';
 import { Direction } from '@typescript/enums';
 import { ActivatedRoute } from '@angular/router';
 
@@ -38,13 +30,13 @@ export class BoardComponent implements OnInit, AfterViewInit, OnDestroy {
   private dragEndEvents$: Array<Observable<DragEvent>> = [];
 
   private destroy$ = new Subject();
-  private subscription$ = new Subscription();
+  private rebuild$ = new Subject();
 
   private dragStartDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
   private dragEndDiv: HTMLDivElement = this.childrenList[0] as HTMLDivElement;
 
-  private offset: number = 0;
-  private blockHeight: number = 0;
+  private offset = 0;
+  private blockHeight = 0;
 
   constructor(
     private boardService: BoardService,
@@ -128,7 +120,8 @@ export class BoardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscription$.unsubscribe();
+    this.destroy$.next(true);
+    this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
@@ -142,21 +135,21 @@ export class BoardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private boardSubscriber() {
-    this.subscription$.add(
-      this.boardService.boards$.pipe(skip(1)).subscribe((boards) => {
+    this.boardService.boards$
+      .pipe(skip(1), takeUntil(this.destroy$))
+      .subscribe((boards) => {
         this.boards = boards;
         this.pushExpectedTasks();
         this.rebuildDestroy$();
         this.drag();
-      })
-    );
+      });
 
-    this.subscription$.add(
-      this.boardService.boards$.pipe(skip(1), delay(0)).subscribe(() => {
+    this.boardService.boards$
+      .pipe(skip(1), delay(0), takeUntil(this.destroy$))
+      .subscribe(() => {
         this.findingChildrenList();
         this.drag();
-      })
-    );
+      });
   }
 
   private findingChildrenList() {
@@ -217,7 +210,7 @@ export class BoardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private dragStart(): void {
     this.dragStartEvents$.forEach((event$) => {
-      event$.pipe(takeUntil(this.destroy$)).subscribe((dragStart) => {
+      event$.pipe(takeUntil(this.rebuild$)).subscribe((dragStart) => {
         this.dragStartDiv = dragStart.currentTarget as HTMLDivElement;
         (dragStart.currentTarget as HTMLDivElement).style.opacity = '0.4';
         (dragStart.currentTarget as HTMLDivElement).style.border = '0';
@@ -228,7 +221,7 @@ export class BoardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private dragOver(): void {
     this.dragOverEvents$.forEach((event$) =>
-      event$.pipe(takeUntil(this.destroy$)).subscribe((dragOver) => {
+      event$.pipe(takeUntil(this.rebuild$)).subscribe((dragOver) => {
         dragOver.preventDefault();
 
         this.pushExpectedTasks();
@@ -257,7 +250,7 @@ export class BoardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private dragEnd(): void {
     this.dragEndEvents$.forEach((event$) => {
-      event$.pipe(takeUntil(this.destroy$)).subscribe((dragEnd) => {
+      event$.pipe(takeUntil(this.rebuild$)).subscribe((dragEnd) => {
         this.pushExpectedTasks();
 
         (dragEnd.currentTarget as HTMLDivElement).removeAttribute('style');
@@ -297,8 +290,8 @@ export class BoardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private rebuildDestroy$() {
-    this.destroy$.next(true);
-    this.destroy$.complete();
-    this.destroy$ = new Subject();
+    this.rebuild$.next(true);
+    this.rebuild$.complete();
+    this.rebuild$ = new Subject();
   }
 }
